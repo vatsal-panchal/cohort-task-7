@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DOM Explorer — Task Manager</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="shell">
+
+  <nav class="rail">
+    <div class="brand">
+      <div class="brand-mark"><span>DX</span></div>
+      <div class="brand-text">
+        <strong>DOM Explorer</strong>
+        <small>Task Manager</small>
+      </div>
+    </div>
+
+    <div class="rail-nav">
+      <p class="rail-nav-label">Workspace</p>
+      <button class="rail-link active" data-view="tasks" type="button"><span class="dot"></span>Tasks</button>
+      <button class="rail-link" data-view="attributes" type="button"><span class="dot"></span>Attributes vs Properties</button>
+      <button class="rail-link" data-view="propagation" type="button"><span class="dot"></span>Event Propagation</button>
+      <button class="rail-link" data-view="pipeline" type="button"><span class="dot"></span>Rendering Pipeline</button>
+    </div>
+
+    <div class="rail-foot">
+      <div class="theme-switch" role="radiogroup" aria-label="Theme">
+        <button id="lightBtn" type="button" class="active" role="radio" aria-checked="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+          White
+        </button>
+        <button id="darkBtn" type="button" role="radio" aria-checked="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+          Black
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="workspace">
+
+    <section class="view active" id="view-tasks">
+      <div class="view-head">
+        <div>
+          <h1>Tasks</h1>
+          <p>Create, edit, complete, and remove tasks. Every card carries data-id, data-status, and data-category.</p>
+        </div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat"><div class="n" id="statTotal">0</div><div class="l">Total</div></div>
+        <div class="stat"><div class="n" id="statPending">0</div><div class="l">Pending</div></div>
+        <div class="stat"><div class="n" id="statCompleted">0</div><div class="l">Completed</div></div>
+        <div class="stat"><div class="n" id="statCategories">0</div><div class="l">Categories</div></div>
+      </div>
+
+      <div class="card">
+        <p class="card-label">New task</p>
+        <form class="task-form" id="taskForm" novalidate>
+          <div class="field">
+            <label for="taskTitle">Title</label>
+            <input type="text" id="taskTitle" placeholder="e.g. Review pull request" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="taskCategory">Category</label>
+            <select id="taskCategory">
+              <option value="work">Work</option>
+              <option value="personal">Personal</option>
+              <option value="urgent">Urgent</option>
+              <option value="learning">Learning</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-solid">Add task</button>
+          <p class="form-error" id="formError">Title can't be empty.</p>
+        </form>
+      </div>
+
+      <div class="toolbar">
+        <input type="search" id="searchInput" placeholder="Search tasks…" />
+        <select id="filterCategory">
+          <option value="all">All categories</option>
+          <option value="work">Work</option>
+          <option value="personal">Personal</option>
+          <option value="urgent">Urgent</option>
+          <option value="learning">Learning</option>
+        </select>
+        <select id="filterStatus">
+          <option value="all">All statuses</option>
+          <option value="pending">Pending</option>
+          <option value="completed">Completed</option>
+        </select>
+      </div>
+
+      <div class="list-head">
+        <h2 id="listCount">0 tasks</h2>
+        <button class="link-action" id="clearAllBtn" type="button">Clear all tasks</button>
+      </div>
+
+      <ul id="taskList"></ul>
+      <p class="empty-state" id="emptyState" style="display:none;">No tasks match your filters.</p>
+    </section>
+
+    <section class="view" id="view-attributes">
+      <div class="view-head">
+        <div>
+          <h1>Attributes vs Properties</h1>
+          <p>An attribute is the value written in HTML. A property is the live JavaScript object value — they can drift apart.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="card-label">Selected task — live read</p>
+        <table class="attr-table" id="attrTable">
+          <thead>
+            <tr><th>Read</th><th>Method</th><th>Value</th></tr>
+          </thead>
+          <tbody id="attrTableBody">
+            <tr><td colspan="3" class="desc">Select a task from the Tasks view to inspect it.</td></tr>
+          </tbody>
+        </table>
+        <div class="attr-actions">
+          <button class="mini-btn" id="btnHasAttr" type="button">hasAttribute('data-status')</button>
+          <button class="mini-btn" id="btnRemoveAttr" type="button">removeAttribute('data-category')</button>
+          <button class="mini-btn" id="btnRestoreAttr" type="button">setAttribute('data-category', …)</button>
+        </div>
+        <div class="console-box" id="attrConsole">
+          <div class="line"><span class="ph">// Output appears here.</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="card-label">Why they differ</p>
+        <p class="pipeline-note">
+          <code>getAttribute('data-status')</code> always returns the exact string from the HTML markup, even after JavaScript changes things elsewhere.
+          <code>element.dataset.status</code> reads the live DOM property, reflecting the current state instantly.
+          For built-ins like <code>input.value</code>, the attribute holds the original default while the property holds what the user is typing right now — that's the core distinction this assignment is testing.
+        </p>
+      </div>
+    </section>
+
+    <section class="view" id="view-propagation">
+      <div class="view-head">
+        <div>
+          <h1>Event Propagation</h1>
+          <p>Click the button below to compare bubbling and capturing on the same Grandparent → Parent → Child structure.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="prop-demo">
+          <div class="prop-box-gp" id="grandparentLayer">
+            <span>Grandparent</span>
+            <div class="prop-box-p" id="parentLayer">
+              <span>Parent</span><br/>
+              <button class="prop-child-btn" id="childBtn" type="button">Child Button</button>
+            </div>
+          </div>
+          <div class="prop-controls">
+            <button class="btn btn-ghost" id="bubbleBtn" type="button">Run bubbling demo</button>
+            <button class="btn btn-ghost" id="captureBtn" type="button">Run capturing demo</button>
+            <button class="btn btn-ghost" id="clearLogBtn" type="button">Clear console</button>
+          </div>
+          <div class="console-box" id="propConsole">
+            <div class="line"><span class="ph">// Choose a mode, then click "Child Button".</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="card-label">Difference</p>
+        <p class="pipeline-note">
+          Bubbling is the default phase: the event fires on the target first, then travels outward — <code>Child → Parent → Grandparent</code>.
+          Capturing is the opposite phase, enabled by passing <code>true</code> as the third argument to <code>addEventListener</code> — it travels inward before the target is reached: <code>Grandparent → Parent → Child</code>.
+        </p>
+      </div>
+    </section>
+
+    <section class="view" id="view-pipeline">
+      <div class="view-head">
+        <div>
+          <h1>Browser Rendering Pipeline</h1>
+          <p>How the browser turns markup and styles into the pixels on screen.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="pipeline-flow">
+          <div class="pipeline-track">
+            <div class="pipeline-node"><div class="k">HTML</div><div class="v">Raw markup document</div></div>
+            <div class="pipeline-arrow-down">↓</div>
+            <div class="pipeline-node"><div class="k">Parsing</div><div class="v">Read byte by byte</div></div>
+            <div class="pipeline-arrow-down">↓</div>
+            <div class="pipeline-node"><div class="k">Tokenization</div><div class="v">Break into tags &amp; tokens</div></div>
+            <div class="pipeline-arrow-down">↓</div>
+            <div class="pipeline-node"><div class="k">DOM Tree</div><div class="v">Document Object Model</div></div>
+          </div>
+
+          <div class="pipeline-plus">+</div>
+
+          <div class="pipeline-track">
+            <div class="pipeline-node"><div class="k">CSS</div><div class="v">Stylesheets &amp; rules</div></div>
+            <div class="pipeline-arrow-down">↓</div>
+            <div class="pipeline-node"><div class="k">CSSOM Tree</div><div class="v">CSS Object Model</div></div>
+          </div>
+        </div>
+
+        <div class="pipeline-result">
+          <div class="k">Render Tree</div>
+          <div class="v">DOM + CSSOM — the visible boxes painted to the screen</div>
+        </div>
+
+        <p class="pipeline-note">
+          The browser parses HTML into a DOM tree describing structure, and CSS into a CSSOM tree describing style.
+          It combines the two into a Render Tree containing only the nodes that are actually visible, then performs Layout to calculate
+          positions and Paint to draw pixels — the same pipeline this app's task cards go through every time one is added.
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <aside class="inspector">
+    <div class="inspector-head">
+      <h2>Inspector</h2>
+      <span class="inspector-pill" id="inspectorPill">no selection</span>
+    </div>
+
+    <div id="inspectorEmpty" class="inspector-empty">
+      Click any task title in the list to inspect its live DOM node — attributes, dataset, and classList, read straight from the element.
+    </div>
+
+    <div id="inspectorNode" class="inspector-node" style="display:none;">
+      <p class="inspector-group-title">Element</p>
+      <div class="node-line"><span class="key">tagName</span><span class="val" id="nodeTag">—</span></div>
+      <div class="node-line"><span class="key">className</span><span class="val" id="nodeClass">—</span></div>
+
+      <p class="inspector-group-title">Attributes (HTML)</p>
+      <div class="node-line"><span class="key">data-id</span><span class="val" id="attrId">—</span></div>
+      <div class="node-line"><span class="key">data-status</span><span class="val" id="attrStatus">—</span></div>
+      <div class="node-line"><span class="key">data-category</span><span class="val" id="attrCategory">—</span></div>
+
+      <p class="inspector-group-title">dataset (live property)</p>
+      <div class="node-line"><span class="key">.dataset.id</span><span class="val" id="dsId">—</span></div>
+      <div class="node-line"><span class="key">.dataset.status</span><span class="val" id="dsStatus">—</span></div>
+      <div class="node-line"><span class="key">.dataset.category</span><span class="val" id="dsCategory">—</span></div>
+    </div>
+
+    <div class="inspector-foot">
+      Theme attribute on <code style="font-family: var(--mono);">&lt;html&gt;</code>:
+      <span id="themeAttrEcho" style="font-family: var(--mono); color: var(--ink);">data-theme="light"</span>
+    </div>
+  </aside>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
