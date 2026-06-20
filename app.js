@@ -19,6 +19,7 @@ const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1);
 
 const taskForm = document.getElementById("taskForm");
 const taskTitleInput = document.getElementById("taskTitle");
+const taskDescriptionInput = document.getElementById("taskDescription");
 const taskCategorySelect = document.getElementById("taskCategory");
 const formError = document.getElementById("formError");
 const taskList = document.getElementById("taskList");
@@ -70,6 +71,40 @@ const initTheme = () => {
   applyTheme(saved === "dark" ? "dark" : "light");
 };
 
+/* ============================================================
+   ADD TASK MODAL — open / close
+============================================================ */
+const modalOverlay = document.getElementById("modalOverlay");
+const openAddTaskBtn = document.getElementById("openAddTaskBtn");
+const closeModalBtn = document.getElementById("closeModalBtn");
+const cancelModalBtn = document.getElementById("cancelModalBtn");
+
+const openModal = () => {
+  modalOverlay.classList.add("open");
+  formError.classList.remove("show");
+  taskTitleInput.focus();
+};
+
+const closeModal = () => {
+  modalOverlay.classList.remove("open");
+  taskForm.reset();
+  formError.classList.remove("show");
+};
+
+openAddTaskBtn.addEventListener("click", openModal);
+closeModalBtn.addEventListener("click", closeModal);
+cancelModalBtn.addEventListener("click", closeModal);
+
+// Click outside the modal card closes it
+modalOverlay.addEventListener("click", e => {
+  if (e.target === modalOverlay) closeModal();
+});
+
+// Escape key closes it
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && modalOverlay.classList.contains("open")) closeModal();
+});
+
 const buildTaskCard = task => {
   const li = document.createElement("li");
   li.className = "task-card";
@@ -94,6 +129,15 @@ const buildTaskCard = task => {
   title.className = "task-title";
   title.appendChild(document.createTextNode(task.title));
 
+  main.appendChild(title);
+
+  if (task.description) {
+    const description = document.createElement("p");
+    description.className = "task-description";
+    description.appendChild(document.createTextNode(task.description));
+    main.appendChild(description);
+  }
+
   const meta = document.createElement("div");
   meta.className = "task-meta";
 
@@ -106,7 +150,7 @@ const buildTaskCard = task => {
   statusBadge.appendChild(document.createTextNode(capitalize(task.status)));
 
   meta.append(categoryBadge, statusBadge);
-  main.append(title, meta);
+  main.appendChild(meta);
 
   const actions = document.createElement("div");
   actions.className = "task-actions";
@@ -138,7 +182,7 @@ const render = () => {
   const statusFilter = filterStatus.value;
 
   const visible = tasks.filter(t => {
-    const matchesQuery = t.title.toLowerCase().includes(query);
+    const matchesQuery = t.title.toLowerCase().includes(query) || (t.description || "").toLowerCase().includes(query);
     const matchesCat = catFilter === "all" || t.category === catFilter;
     const matchesStatus = statusFilter === "all" || t.status === statusFilter;
     return matchesQuery && matchesCat && matchesStatus;
@@ -182,13 +226,18 @@ taskForm.addEventListener("submit", e => {
   }
   formError.classList.remove("show");
 
-  const newTask = { id: generateId(), title, category: taskCategorySelect.value, status: "pending" };
+  const newTask = {
+    id: generateId(),
+    title,
+    description: taskDescriptionInput.value.trim(),
+    category: taskCategorySelect.value,
+    status: "pending"
+  };
   tasks.push(newTask);
   saveTasks();
   selectedId = newTask.id;
   render();
-  taskTitleInput.value = "";
-  taskTitleInput.focus();
+  closeModal();
 });
 
 taskTitleInput.addEventListener("input", () => {

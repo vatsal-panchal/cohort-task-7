@@ -59,49 +59,35 @@
       </div>
 
       <div class="card">
-        <p class="card-label">New task</p>
-        <form class="task-form" id="taskForm" novalidate>
-          <div class="field">
-            <label for="taskTitle">Title</label>
-            <input type="text" id="taskTitle" placeholder="e.g. Review pull request" autocomplete="off" />
-          </div>
-          <div class="field">
-            <label for="taskCategory">Category</label>
-            <select id="taskCategory">
-              <option value="work">Work</option>
-              <option value="personal">Personal</option>
-              <option value="urgent">Urgent</option>
-              <option value="learning">Learning</option>
-            </select>
-          </div>
-          <button type="submit" class="btn btn-solid">Add task</button>
-          <p class="form-error" id="formError">Title can't be empty.</p>
-        </form>
-      </div>
+        <div class="card-row-head">
+          <p class="card-label">Tasks</p>
+          <button class="btn btn-solid" id="openAddTaskBtn" type="button">+ Add task</button>
+        </div>
 
-      <div class="toolbar">
-        <input type="search" id="searchInput" placeholder="Search tasks…" />
-        <select id="filterCategory">
-          <option value="all">All categories</option>
-          <option value="work">Work</option>
-          <option value="personal">Personal</option>
-          <option value="urgent">Urgent</option>
-          <option value="learning">Learning</option>
-        </select>
-        <select id="filterStatus">
-          <option value="all">All statuses</option>
-          <option value="pending">Pending</option>
-          <option value="completed">Completed</option>
-        </select>
-      </div>
+        <div class="toolbar">
+          <input type="search" id="searchInput" placeholder="Search tasks…" />
+          <select id="filterCategory">
+            <option value="all">All categories</option>
+            <option value="work">Work</option>
+            <option value="personal">Personal</option>
+            <option value="urgent">Urgent</option>
+            <option value="learning">Learning</option>
+          </select>
+          <select id="filterStatus">
+            <option value="all">All statuses</option>
+            <option value="pending">Pending</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
 
-      <div class="list-head">
-        <h2 id="listCount">0 tasks</h2>
-        <button class="link-action" id="clearAllBtn" type="button">Clear all tasks</button>
-      </div>
+        <div class="list-head">
+          <h2 id="listCount">0 tasks</h2>
+          <button class="link-action" id="clearAllBtn" type="button">Clear all tasks</button>
+        </div>
 
-      <ul id="taskList"></ul>
-      <p class="empty-state" id="emptyState" style="display:none;">No tasks match your filters.</p>
+        <ul id="taskList"></ul>
+        <p class="empty-state" id="emptyState" style="display:none;">No tasks match your filters.</p>
+      </div>
     </section>
 
     <section class="view" id="view-attributes">
@@ -255,6 +241,49 @@
     </div>
   </aside>
 
+</div>
+
+<!-- ============================================================
+     ADD TASK MODAL — opened by the "+ Add task" button
+============================================================ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="taskModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-head">
+      <h2 id="modalTitle">New task</h2>
+      <button class="modal-close" id="closeModalBtn" type="button" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <form class="task-form" id="taskForm" novalidate>
+      <div class="field">
+        <label for="taskTitle">Title</label>
+        <input type="text" id="taskTitle" placeholder="e.g. Review pull request" autocomplete="off" />
+      </div>
+
+      <div class="field">
+        <label for="taskDescription">Description</label>
+        <textarea id="taskDescription" placeholder="Add more detail about this task… (optional)" rows="4"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="taskCategory">Category</label>
+        <select id="taskCategory">
+          <option value="work">Work</option>
+          <option value="personal">Personal</option>
+          <option value="urgent">Urgent</option>
+          <option value="learning">Learning</option>
+        </select>
+      </div>
+
+      <p class="form-error" id="formError">Title can't be empty.</p>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="cancelModalBtn">Cancel</button>
+        <button type="submit" class="btn btn-solid">Add task</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <script src="app.js"></script>
