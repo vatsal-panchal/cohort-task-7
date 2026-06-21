@@ -1,0 +1,1 @@
+DOM Explorer — A responsive task management dashboard demonstrating DOM concepts like attributes, properties, event propagation, and the browser rendering pipeline. Built with HTML, CSS, and vanilla JavaScript with Local Storage persistence and theme support.
